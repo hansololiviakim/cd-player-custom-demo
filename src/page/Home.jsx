@@ -24,6 +24,28 @@ function Home() {
   const [resizeMode, setResizeMode] = useState(null); // 'move' | 'resize' | 'rotate' (현재 조작 모드)
   const [rotationOffset, setRotationOffset] = useState(0); // 회전 핸들용 오프셋
 
+  // Shift 키 상태 관리 (비율 고정용)
+  const [isShift, setIsShift] = useState(false);
+
+  // 비율 고정 토글 (모바일용)
+  const [isRatioLock, setIsRatioLock] = useState(false);
+
+  // Shift 키 이벤트 리스너 등록
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Shift") setIsShift(true);
+    };
+    const handleKeyUp = (e) => {
+      if (e.key === "Shift") setIsShift(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
   // 이미지 캐시 (CD, 스티커 이미지 미리 로드해서 drawStickers에서 재사용)
   const cdImageRef = useRef(null);
   const stickerImageCache = useRef({});
@@ -419,10 +441,27 @@ function Home() {
       const angle = -sticker.rotation;
       const localX = dx * Math.cos(angle) - dy * Math.sin(angle);
       const localY = dx * Math.sin(angle) + dy * Math.cos(angle);
-      const newWidth = Math.max(20, localX);
-      const newHeight = Math.max(20, localY);
-      sticker.width = newWidth;
-      sticker.height = newHeight;
+      if (isShift || isRatioLock) {
+        // Shift 또는 토글: 비율 고정
+        const ratio = sticker.width / sticker.height;
+        if (localX / localY > ratio) {
+          const newWidth = Math.max(20, localX);
+          const newHeight = Math.max(20, localX / ratio);
+          sticker.width = newWidth;
+          sticker.height = newHeight;
+        } else {
+          const newHeight = Math.max(20, localY);
+          const newWidth = Math.max(20, localY * ratio);
+          sticker.width = newWidth;
+          sticker.height = newHeight;
+        }
+      } else {
+        // 자유 비율
+        const newWidth = Math.max(20, localX);
+        const newHeight = Math.max(20, localY);
+        sticker.width = newWidth;
+        sticker.height = newHeight;
+      }
     } else if (resizeMode === "rotate") {
       // 회전: 중심 기준으로 마우스 각도 계산
       const centerX = sticker.x + (sticker.width * sticker.scale) / 2;
@@ -657,6 +696,18 @@ function Home() {
             >
               text
             </button>
+          </div>
+          {/* 비율 고정 토글 (모바일용) */}
+          <div className="mt-2 flex justify-center">
+            <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-white">
+              <input
+                type="checkbox"
+                checked={isRatioLock}
+                onChange={(e) => setIsRatioLock(e.target.checked)}
+                className="accent-blue-500"
+              />
+              비율 고정
+            </label>
           </div>
           {/* 이미지 업로드 버튼 */}
           <div className="mt-2 flex justify-center">
