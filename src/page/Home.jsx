@@ -481,11 +481,22 @@ function Home() {
     }
   };
 
+  /**
+   * 캔버스 이미지를 jpg로 저장 (저장하기 버튼 클릭 시)
+   */
+  const handleSaveImage = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dataUrl = canvas.toDataURL("image/jpeg");
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "cd-custom.jpg";
+    link.click();
+  };
+
   // stickers, selectedSticker가 바뀔 때마다 다시 그림
   useEffect(() => {
-    if (stickers.length > 0 || selectedSticker !== null) {
-      drawStickers();
-    }
+    drawStickers();
   }, [stickers, selectedSticker]);
 
   // ====== 렌더링 ======
@@ -495,32 +506,40 @@ function Home() {
         <section className="bg-amber-50 p-4 rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-amber-800">CD 커스텀</h2>
-            {selectedSticker !== null && (
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={sendStickerBackward}
-                  className="bg-gray-300 text-gray-800 px-2 py-1 rounded hover:bg-gray-400 transition-colors text-xs"
-                  title="한 칸 아래로"
-                  disabled={selectedSticker === 0}
-                >
-                  ↓ 한 칸 아래로
-                </button>
-                <button
-                  onClick={bringStickerForward}
-                  className="bg-gray-300 text-gray-800 px-2 py-1 rounded hover:bg-gray-400 transition-colors text-xs"
-                  title="한 칸 위로"
-                  disabled={selectedSticker === stickers.length - 1}
-                >
-                  ↑ 한 칸 위로
-                </button>
-                <button
-                  onClick={deleteSelectedSticker}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors text-xs"
-                >
-                  선택된 스티커 삭제
-                </button>
-              </div>
-            )}
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={handleSaveImage}
+                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors text-xs"
+              >
+                저장하기
+              </button>
+              {selectedSticker !== null && (
+                <>
+                  <button
+                    onClick={sendStickerBackward}
+                    className="bg-gray-300 text-gray-800 px-2 py-1 rounded hover:bg-gray-400 transition-colors text-xs"
+                    title="한 칸 아래로"
+                    disabled={selectedSticker === 0}
+                  >
+                    ↓ 한 칸 아래로
+                  </button>
+                  <button
+                    onClick={bringStickerForward}
+                    className="bg-gray-300 text-gray-800 px-2 py-1 rounded hover:bg-gray-400 transition-colors text-xs"
+                    title="한 칸 위로"
+                    disabled={selectedSticker === stickers.length - 1}
+                  >
+                    ↑ 한 칸 위로
+                  </button>
+                  <button
+                    onClick={deleteSelectedSticker}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors text-xs"
+                  >
+                    선택된 스티커 삭제
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-center">
