@@ -500,10 +500,17 @@ function Home() {
   const handleSaveImage = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dataUrl = canvas.toDataURL("image/jpeg");
+    const dataUrl = canvas.toDataURL("image/png"); // PNG로 저장 (투명 배경)
+    const now = new Date();
+    const pad = (n) => n.toString().padStart(2, "0");
+    const fileName = `cd-${pad(now.getFullYear() % 100)}${pad(
+      now.getMonth() + 1
+    )}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(
+      now.getSeconds()
+    )}.png`;
     const link = document.createElement("a");
     link.href = dataUrl;
-    link.download = "cd-custom.jpg";
+    link.download = fileName;
     link.click();
   };
 
