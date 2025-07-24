@@ -91,7 +91,8 @@ function Home() {
    * - 4. 스티커들 transform(이동/회전/크기) 적용해서 그리기
    * - 5. 선택된 스티커는 테두리/핸들 표시
    */
-  const drawStickers = () => {
+  // drawStickers: hideBorder 옵션 추가 (저장 시 border 없이 그리기)
+  const drawStickers = (hideBorder = false) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height); // 전체 초기화
@@ -163,8 +164,8 @@ function Home() {
         );
         ctx.restore();
 
-        // 선택된 스티커는 테두리/핸들 표시
-        if (selectedSticker === index) {
+        // 선택된 스티커는 테두리/핸들 표시 (hideBorder가 false일 때만)
+        if (!hideBorder && selectedSticker === index) {
           ctx.save();
           ctx.translate(centerX, centerY);
           ctx.rotate(sticker.rotation);
@@ -536,10 +537,12 @@ function Home() {
   /**
    * 캔버스 이미지를 jpg로 저장 (저장하기 버튼 클릭 시)
    */
+  // handleSaveImage: border 없이 저장
   const handleSaveImage = () => {
+    drawStickers(true); // border 없이 그림
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dataUrl = canvas.toDataURL("image/png"); // PNG로 저장 (투명 배경)
+    const dataUrl = canvas.toDataURL("image/png");
     const now = new Date();
     const pad = (n) => n.toString().padStart(2, "0");
     const fileName = `cd-${pad(now.getFullYear() % 100)}${pad(
@@ -551,6 +554,7 @@ function Home() {
     link.href = dataUrl;
     link.download = fileName;
     link.click();
+    drawStickers(); // 다시 border 보이게
   };
 
   /**
