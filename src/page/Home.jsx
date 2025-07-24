@@ -118,7 +118,12 @@ function Home() {
 
     // stickers 배열 순서대로 스티커 그리기 (뒤에 있는 게 위에 보임)
     stickers.forEach((sticker, index) => {
-      const image = stickerImageCache.current[sticker.type];
+      let image;
+      if (sticker.type === "custom") {
+        image = stickerImageCache.current["custom-" + sticker.id];
+      } else {
+        image = stickerImageCache.current[sticker.type];
+      }
       if (image && image.complete) {
         // transform: 이동/회전/크기
         const centerX = sticker.x + (sticker.width * sticker.scale) / 2;
@@ -502,6 +507,41 @@ function Home() {
     link.click();
   };
 
+  /**
+   * 이미지 업로드 후 스티커로 추가
+   */
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target.result;
+      // 업로드 이미지를 스티커로 추가 (type: 'custom', src: dataUrl)
+      const width = 50;
+      const height = 50;
+      const center = getCDCenter();
+      const newSticker = {
+        id: Date.now(),
+        type: "custom",
+        src: dataUrl,
+        x: center.x - width / 2,
+        y: center.y - height / 2,
+        width,
+        height,
+        scale: 1,
+        rotation: 0,
+      };
+      // 캐시에 이미지 객체 추가
+      const img = new window.Image();
+      img.src = dataUrl;
+      stickerImageCache.current["custom-" + newSticker.id] = img;
+      setStickers([...stickers, newSticker]);
+    };
+    reader.readAsDataURL(file);
+    // input value 초기화 (같은 파일 연속 업로드 가능하게)
+    e.target.value = "";
+  };
+
   // stickers, selectedSticker가 바뀔 때마다 다시 그림
   useEffect(() => {
     drawStickers();
@@ -610,6 +650,18 @@ function Home() {
             >
               text
             </button>
+          </div>
+          {/* 이미지 업로드 버튼 */}
+          <div className="mt-2 flex justify-center">
+            <label className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors text-xs cursor-pointer">
+              이미지 업로드
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: "none" }}
+              />
+            </label>
           </div>
         </section>
       </div>
