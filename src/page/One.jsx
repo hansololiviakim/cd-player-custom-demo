@@ -14,7 +14,7 @@ import { cd, sparkle, stamp, star, text } from "@/asset";
  * 4. 마우스/터치 이벤트로 스티커 이동/크기/회전/순서조정/삭제
  */
 
-function Home() {
+function One() {
   // ====== 상태 관리 ======
   const canvasRef = useRef(null); // Canvas DOM 참조
   const [stickers, setStickers] = useState([]); // 모든 스티커 상태 (배열 순서가 z-index)
@@ -731,4 +731,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default One;

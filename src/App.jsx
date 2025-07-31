@@ -1,11 +1,11 @@
 import { Routes, Route, Link } from "react-router-dom";
-import Home from "@/page/Home";
+import One from "@/page/One";
 
 function App() {
   return (
     <main className="h-dvh bg-black">
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/1st" element={<One />} />
         <Route
           path="*"
           element={
